@@ -5,12 +5,19 @@ import SEO from '../components/SEO';
 import useForm from '../utils/useForm';
 import calculatePizzaPrice from '../utils/calculatePizzaPrice';
 import formatMoney from '../utils/formatMoney';
+import usePizza from '../utils/usePizza';
+import calculateOrderTotal from '../utils/calculateOrderTotal';
 import OrderStyles from '../styles/OrderStyles';
 import MenuItemStyles from '../styles/MenuItemStyles';
+import PizzaOrder from '../components/PizzaOrder';
 
 export default function OrdersPage({ data }) {
-  const { values, updateValue } = useForm({ name: '', email: '' });
   const pizzas = data.pizzas.nodes;
+  const { values, updateValue } = useForm({ name: '', email: '' });
+  const { order, addToOrder, removeFromOrder } = usePizza({
+    pizzas,
+    input: values,
+  });
   return (
     <>
       <SEO title="Order a Pizza!" />
@@ -53,7 +60,11 @@ export default function OrdersPage({ data }) {
               </div>
               <div>
                 {['S', 'M', 'L'].map((size) => (
-                  <button type="button" key={pizza.id + size}>
+                  <button
+                    type="button"
+                    key={pizza.id + size}
+                    onClick={() => addToOrder({ id: pizza.id, size })}
+                  >
                     {size} {formatMoney(calculatePizzaPrice(pizza.price, size))}
                   </button>
                 ))}
@@ -63,6 +74,17 @@ export default function OrdersPage({ data }) {
         </fieldset>
         <fieldset className="order">
           <legend>Order</legend>
+          <PizzaOrder
+            order={order}
+            removeFromOrder={removeFromOrder}
+            pizzas={pizzas}
+          />
+        </fieldset>
+        <fieldset>
+          <h3>
+            Your total is {formatMoney(calculateOrderTotal(order, pizzas))}
+          </h3>
+          <button type="submit">Order Ahead</button>
         </fieldset>
       </OrderStyles>
     </>
