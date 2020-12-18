@@ -79,7 +79,6 @@ export default function ToppingsFiler({ activeTopping }) {
 
   // Count how many pizzas are in each topping.
   const toppingsWithCount = countPizzasInToppings(pizzas.nodes);
-  console.log(toppingsWithCount);
   // Loop over the list of toppings and display the topping and the count of pizzas in that topping.
   // Link it up....
   return (
