@@ -35,8 +35,25 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+async function wait(ms = 0) {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 exports.handler = async (event, context) => {
+  await wait();
   const body = JSON.parse(event.body);
+  // Check if they have filled out the honeypot
+  if (body.mapleSyrup) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: `Boop beep bop zzzzzstt good bye ERR 32432`,
+      }),
+    };
+  }
+
   // Validate the data coming in is correct
   const requiredFields = ['email', 'name', 'order'];
   for (const field of requiredFields) {
@@ -45,6 +62,16 @@ exports.handler = async (event, context) => {
         statusCode: 400,
         body: JSON.stringify({
           message: `Oops? you are missing the ${field} field`,
+        }),
+      };
+    }
+
+    // make sure they actually have items in that order
+    if (!body.order.length) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: `Why would you order nothing?`,
         }),
       };
     }
